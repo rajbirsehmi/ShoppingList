@@ -3,6 +3,7 @@
 package com.creative.shoppinglist.ui.navigation
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.filled.ErrorOutline
@@ -12,7 +13,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -62,18 +65,28 @@ fun ShoppingNavGraph() {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
+    val showFab = when (currentDestination?.route) {
+        Routes.REGULAR -> regularItems.isNotEmpty()
+        Routes.IMPORTANT -> importantItems.isNotEmpty()
+        else -> true
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
-            FloatingActionButtonAddShoppingItem(
-                onClick = {
-                    showBottomSheet = true
-                }
-            )
+            if (showFab) {
+                FloatingActionButtonAddShoppingItem(
+                    onClick = {
+                        showBottomSheet = true
+                    }
+                )
+            }
         },
         floatingActionButtonPosition = androidx.compose.material3.FabPosition.End,
         topBar = {
-            TopAppBarShoppingItem()
+            TopAppBarShoppingItem(scrollBehavior = scrollBehavior)
         },
         bottomBar = {
             NavigationBar {
@@ -82,17 +95,20 @@ fun ShoppingNavGraph() {
                     currentDestination = currentDestination,
                     routesString = Routes.REGULAR,
                     type = "Regular",
-                    icon = Icons.Default.List
+                    icon = Icons.Default.List,
+                    badgeCount = regularItems.size
                 )
                 BottomNavBarItem(
                     navController = navController,
                     currentDestination = currentDestination,
                     routesString = Routes.IMPORTANT,
                     type = "Important",
-                    icon = Icons.Default.ErrorOutline
+                    icon = Icons.Default.ErrorOutline,
+                    badgeCount = importantItems.size
                 )
             }
-        }
+        },
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         if (showBottomSheet) {
             ModalBottomSheet(
@@ -122,7 +138,8 @@ fun ShoppingNavGraph() {
                 if (regularItems.isEmpty()) {
                     ShoppingScreenEmpty(
                         message = "No shopping items found.",
-                        icon = Icons.AutoMirrored.Rounded.List
+                        icon = Icons.AutoMirrored.Rounded.List,
+                        onActionClick = { showBottomSheet = true }
                     )
                 } else {
                     ShoppingScreenRegular(
@@ -134,7 +151,8 @@ fun ShoppingNavGraph() {
                 if (importantItems.isEmpty()) {
                     ShoppingScreenEmpty(
                         message = "No important shopping items found.",
-                        icon = Icons.Default.ErrorOutline
+                        icon = Icons.Default.ErrorOutline,
+                        onActionClick = { showBottomSheet = true }
                     )
                 } else {
                     ShoppingScreenImportant(

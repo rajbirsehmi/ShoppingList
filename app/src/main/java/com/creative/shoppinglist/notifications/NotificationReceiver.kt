@@ -13,6 +13,9 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.creative.shoppinglist.MainActivity
+import com.creative.shoppinglist.R
+import androidx.core.graphics.toColorInt
+import androidx.core.content.ContextCompat
 
 class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -75,16 +78,18 @@ class NotificationReceiver : BroadcastReceiver() {
         )
 
         val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setColor("#673AB7".toColorInt())
             .setContentTitle("Shopping Reminder")
-            .setContentText("Don't forget to buy: $itemName")
+            .setContentText("Time to pick up: $itemName")
+            .setStyle(NotificationCompat.BigTextStyle().bigText("Don't forget to buy: $itemName"))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
-            .setOngoing(true) // Standard way to make it sticky
-            .setAutoCancel(false) // Don't dismiss when clicked
+            .setOngoing(true)
+            .setAutoCancel(false)
             .setContentIntent(contentPendingIntent)
             .addAction(
-                android.R.drawable.ic_menu_close_clear_cancel,
+                R.drawable.ic_notification, // Use a generic icon or specific one
                 "Dismiss",
                 dismissPendingIntent
             )

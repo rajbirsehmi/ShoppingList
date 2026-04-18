@@ -16,24 +16,21 @@ import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.creative.shoppinglist.domain.model.ShoppingItem
 import com.creative.shoppinglist.ui.components.RegularShoppingItem
-import com.creative.shoppinglist.ui.viewmodels.ShoppingViewModel
-import com.creative.shoppinglist.util.toDomain
-
 
 @Composable
 fun ShoppingScreenRegular(
-    viewModel: ShoppingViewModel = hiltViewModel()
+    items: List<ShoppingItem>,
+    onDelete: (ShoppingItem) -> Unit,
+    onToggleDone: (ShoppingItem) -> Unit
 ) {
-    val regularItems by viewModel.regularShoppingItems.collectAsState(initial = emptyList())
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -41,13 +38,13 @@ fun ShoppingScreenRegular(
         contentPadding = PaddingValues(bottom = 80.dp)
     ) {
         items(
-            items = regularItems,
+            items = items,
             key = { it.id ?: it.hashCode() }
         ) { item ->
             val dismissState = rememberSwipeToDismissBoxState(
                 confirmValueChange = { dismissValue ->
                     if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
-                        viewModel.deleteShoppingItem(item.toDomain())
+                        onDelete(item)
                         true
                     } else {
                         false
@@ -82,11 +79,8 @@ fun ShoppingScreenRegular(
                 }
             ) {
                 RegularShoppingItem(
-                    item = item.toDomain(),
-                    onCheckedChange = { isChecked ->
-                        if (item.toDomain().isChecked) viewModel.markItemAsUndone(item.id!!)
-                        else viewModel.markItemAsDone(item.id!!)
-                    }
+                    item = item,
+                    onCheckedChange = { onToggleDone(item) }
                 )
             }
         }

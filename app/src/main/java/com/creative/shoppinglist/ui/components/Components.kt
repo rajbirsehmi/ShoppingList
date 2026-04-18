@@ -81,11 +81,13 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.creative.shoppinglist.domain.model.ShoppingItem
 import com.creative.shoppinglist.notifications.scheduleNotification
+import com.creative.shoppinglist.ui.navigation.Screen
 import com.creative.shoppinglist.ui.viewmodels.ShoppingViewModel
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -128,7 +130,7 @@ fun TopAppBarShoppingItem(scrollBehavior: TopAppBarScrollBehavior? = null) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetAddItem(
-    viewMode: ShoppingViewModel = hiltViewModel(),
+    viewModel: ShoppingViewModel = hiltViewModel(),
     onDismiss: (String) -> Unit
 ) {
 
@@ -291,7 +293,7 @@ fun BottomSheetAddItem(
                     }
                 }
                 
-                viewMode.insertShoppingItem(newItem)
+                viewModel.insertShoppingItem(newItem)
                 onDismiss(message)
             }) {
             Icon(Icons.Default.Add, contentDescription = null)
@@ -559,17 +561,17 @@ fun TimePickerDialog(
 fun RowScope.BottomNavBarItem(
     navController: NavHostController,
     currentDestination: NavDestination?,
-    routesString: String,
+    route: Screen,
     type: String,
     icon: ImageVector,
     badgeCount: Int = 0
 ) {
-    val selected = currentDestination?.hierarchy?.any { it.route == routesString } == true
+    val selected = currentDestination?.hierarchy?.any { it.hasRoute(route::class) } == true
 
     NavigationBarItem(
         selected = selected,
         onClick = {
-            navController.navigate(routesString) {
+            navController.navigate(route) {
                 popUpTo(navController.graph.findStartDestination().id) {
                     saveState = true
                 }

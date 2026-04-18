@@ -1,23 +1,20 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-    id("com.google.dagger.hilt.android")
-    id("com.google.devtools.ksp")
-    id("androidx.room3")
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
     namespace = "com.creative.shoppinglist"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.creative.shoppinglist"
         minSdk = 33
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 2
         versionName = "1.2"
 
@@ -42,7 +39,7 @@ android {
     }
 }
 
-room3 {
+room {
     schemaDirectory("$projectDir/schemas")
 }
 
@@ -50,6 +47,7 @@ dependencies {
     // --- Core AndroidX & Lifecycle ---
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
 
     // --- Jetpack Compose ---
@@ -58,14 +56,17 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.core)
+    implementation(libs.androidx.compose.material.icons.extended)
+
+    // --- Navigation ---
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
 
     // --- Dependency Injection (Hilt) ---
     implementation(libs.hilt.android)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.compose.foundation.layout)
-    implementation(libs.androidx.ui)
     ksp(libs.hilt.android.compiler)
-    implementation(libs.androidx.hilt.navigation.compose)
 
     // --- Local Storage (Room) ---
     implementation(libs.androidx.room.runtime)
@@ -84,7 +85,4 @@ dependencies {
     // --- Debug Tools ---
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    implementation(libs.androidx.compose.material.icons.core)
-    implementation(libs.androidx.compose.material.icons.extended)
 }

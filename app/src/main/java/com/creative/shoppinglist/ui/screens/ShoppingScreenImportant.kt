@@ -17,24 +17,22 @@ import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.creative.shoppinglist.domain.model.ShoppingItem
 import com.creative.shoppinglist.ui.components.ImportantShoppingItem
-import com.creative.shoppinglist.ui.viewmodels.ShoppingViewModel
-import com.creative.shoppinglist.util.toDomain
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingScreenImportant(
-    viewModel: ShoppingViewModel = hiltViewModel()
+    items: List<ShoppingItem>,
+    onDelete: (ShoppingItem) -> Unit,
+    onToggleDone: (ShoppingItem) -> Unit
 ) {
-    val importantItems by viewModel.importantShoppingItems.collectAsState(initial = emptyList())
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -42,13 +40,13 @@ fun ShoppingScreenImportant(
         contentPadding = PaddingValues(bottom = 80.dp)
     ) {
         items(
-            items = importantItems,
+            items = items,
             key = { it.id ?: it.hashCode() }
         ) { item ->
             val dismissState = rememberSwipeToDismissBoxState(
                 confirmValueChange = { dismissValue ->
                     if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
-                        viewModel.deleteShoppingItem(item.toDomain())
+                        onDelete(item)
                         true
                     } else false
                 }
@@ -56,7 +54,6 @@ fun ShoppingScreenImportant(
             SwipeToDismissBox(
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                 state = dismissState,
-                enableDismissFromStartToEnd = false,
                 backgroundContent = {
                     val color by animateColorAsState(
                         when (dismissState.targetValue) {
@@ -81,11 +78,8 @@ fun ShoppingScreenImportant(
                 }
             ) {
                 ImportantShoppingItem(
-                    item = item.toDomain(),
-                    onCheckedChange = { isChecked ->
-                        if (item.toDomain().isChecked) viewModel.markItemAsUndone(item.id!!)
-                        else viewModel.markItemAsDone(item.id!!)
-                    }
+                    item = item,
+                    onCheckedChange = { onToggleDone(item) }
                 )
             }
         }

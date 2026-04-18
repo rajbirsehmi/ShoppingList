@@ -1,24 +1,29 @@
 package com.creative.shoppinglist.data.repo
 
 import com.creative.shoppinglist.data.local.ShoppingDao
-import com.creative.shoppinglist.data.local.ShoppingItemEntity
+import com.creative.shoppinglist.domain.model.ShoppingItem
 import com.creative.shoppinglist.domain.repo.ShoppingRepository
+import com.creative.shoppinglist.util.toDomain
+import com.creative.shoppinglist.util.toEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class ShoppingRepositoryImpl @Inject constructor(
     private val shoppingDao: ShoppingDao
 ): ShoppingRepository {
-    override suspend fun insertShoppingItem(shoppingItem: ShoppingItemEntity) {
-        shoppingDao.insertShoppingItem(shoppingItem)
+    override suspend fun insertShoppingItem(shoppingItem: ShoppingItem) {
+        shoppingDao.insertShoppingItem(shoppingItem.toEntity())
     }
 
-    override suspend fun deleteShoppingItem(shoppingItem: ShoppingItemEntity) {
-        shoppingDao.deleteShoppingItem(shoppingItem)
+    override suspend fun deleteShoppingItem(shoppingItem: ShoppingItem) {
+        shoppingDao.deleteShoppingItem(shoppingItem.toEntity())
     }
 
-    override fun getRegularShoppingItems(): Flow<List<ShoppingItemEntity>> =
-        shoppingDao.getRegularShoppingItems()
+    override fun getRegularShoppingItems(): Flow<List<ShoppingItem>> =
+        shoppingDao.getRegularShoppingItems().map { entities ->
+            entities.map { it.toDomain() }
+        }
 
     override suspend fun markItemAsDone(id: Int) {
         shoppingDao.markItemAsDone(id)
@@ -28,11 +33,13 @@ class ShoppingRepositoryImpl @Inject constructor(
         shoppingDao.markItemAsUndone(id)
     }
 
-    override fun getImportantShoppingItems(): Flow<List<ShoppingItemEntity>> =
-        shoppingDao.getImportantShoppingItems()
+    override fun getImportantShoppingItems(): Flow<List<ShoppingItem>> =
+        shoppingDao.getImportantShoppingItems().map { entities ->
+            entities.map { it.toDomain() }
+        }
 
-    override suspend fun getShoppingItemById(id: Int): ShoppingItemEntity? =
-        shoppingDao.getShoppingItemById(id)
+    override suspend fun getShoppingItemById(id: Int): ShoppingItem? =
+        shoppingDao.getShoppingItemById(id)?.toDomain()
 
     override suspend fun deleteAllShoppingItems() {
         shoppingDao.deleteAllShoppingItems()

@@ -3,7 +3,6 @@
 package com.creative.shoppinglist.ui.navigation
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.List
 import androidx.compose.material.icons.filled.ErrorOutline
@@ -17,15 +16,18 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -40,10 +42,14 @@ import com.creative.shoppinglist.ui.screens.ShoppingScreenRegular
 import com.creative.shoppinglist.ui.viewmodels.ShoppingViewModel
 import com.creative.shoppinglist.util.GenerateToast
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
-object Routes {
-    const val REGULAR = "regular"
-    const val IMPORTANT = "important"
+@Serializable
+sealed interface Screen {
+    @Serializable
+    data object Regular : Screen
+    @Serializable
+    data object Important : Screen
 }
 
 @Composable
@@ -51,25 +57,22 @@ fun ShoppingNavGraph() {
     val navController = rememberNavController()
     val viewModel = hiltViewModel<ShoppingViewModel>()
 
-    val regularItems by viewModel.regularShoppingItems.collectAsState(initial = emptyList())
-    val importantItems by viewModel.importantShoppingItems.collectAsState(initial = emptyList())
+    val regularItems by viewModel.regularShoppingItems.collectAsStateWithLifecycle()
+    val importantItems by viewModel.importantShoppingItems.collectAsStateWithLifecycle()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
     var showBottomSheet by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
-    val showFab = when (currentDestination?.route) {
-        Routes.REGULAR -> regularItems.isNotEmpty()
-        Routes.IMPORTANT -> importantItems.isNotEmpty()
+    val showFab = when {
+        currentDestination?.hasRoute<Screen.Regular>() == true -> regularItems.isNotEmpty()
+        currentDestination?.hasRoute<Screen.Important>() == true -> importantItems.isNotEmpty()
         else -> true
     }
 
@@ -77,23 +80,16 @@ fun ShoppingNavGraph() {
         containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
             if (showFab) {
-                FloatingActionButtonAddShoppingItem(
-                    onClick = {
-                        showBottomSheet = true
-                    }
-                )
+                FloatingActionButtonAddShoppingItem(onClick = { showBottomSheet = true })
             }
         },
-        floatingActionButtonPosition = androidx.compose.material3.FabPosition.End,
-        topBar = {
-            TopAppBarShoppingItem(scrollBehavior = scrollBehavior)
-        },
+        topBar = { TopAppBarShoppingItem(scrollBehavior = scrollBehavior) },
         bottomBar = {
             NavigationBar {
                 BottomNavBarItem(
                     navController = navController,
                     currentDestination = currentDestination,
-                    routesString = Routes.REGULAR,
+                    route = Screen.Regular,
                     type = "Regular",
                     icon = Icons.Default.List,
                     badgeCount = regularItems.size
@@ -101,7 +97,7 @@ fun ShoppingNavGraph() {
                 BottomNavBarItem(
                     navController = navController,
                     currentDestination = currentDestination,
-                    routesString = Routes.IMPORTANT,
+                    route = Screen.Important,
                     type = "Important",
                     icon = Icons.Default.ErrorOutline,
                     badgeCount = importantItems.size
@@ -117,11 +113,11 @@ fun ShoppingNavGraph() {
                 dragHandle = null
             ) {
                 BottomSheetAddItem(
-                    viewMode = viewModel,
+                    viewModel = viewModel,
                     onDismiss = { message ->
                         scope.launch { sheetState.hide() }.invokeOnCompletion {
                             if (!sheetState.isVisible) {
-                                GenerateToast(context, "Item Added$message")
+                                if (message.isNotBlank()) GenerateToast(context, message)
                                 showBottomSheet = false
                             }
                         }
@@ -129,12 +125,13 @@ fun ShoppingNavGraph() {
                 )
             }
         }
+
         NavHost(
             navController = navController,
-            startDestination = Routes.REGULAR,
+            startDestination = Screen.Regular,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Routes.REGULAR) {
+            composable<Screen.Regular> {
                 if (regularItems.isEmpty()) {
                     ShoppingScreenEmpty(
                         message = "No shopping items found.",
@@ -143,20 +140,30 @@ fun ShoppingNavGraph() {
                     )
                 } else {
                     ShoppingScreenRegular(
-                        viewModel = viewModel
+                        items = regularItems,
+                        onDelete = viewModel::deleteShoppingItem,
+                        onToggleDone = { item ->
+                            if (item.isChecked) viewModel.markItemAsUndone(item.id!!)
+                            else viewModel.markItemAsDone(item.id!!)
+                        }
                     )
                 }
             }
-            composable(Routes.IMPORTANT) {
+            composable<Screen.Important> {
                 if (importantItems.isEmpty()) {
                     ShoppingScreenEmpty(
-                        message = "No important shopping items found.",
+                        message = "No important items found.",
                         icon = Icons.Default.ErrorOutline,
                         onActionClick = { showBottomSheet = true }
                     )
                 } else {
                     ShoppingScreenImportant(
-                        viewModel
+                        items = importantItems,
+                        onDelete = viewModel::deleteShoppingItem,
+                        onToggleDone = { item ->
+                            if (item.isChecked) viewModel.markItemAsUndone(item.id!!)
+                            else viewModel.markItemAsDone(item.id!!)
+                        }
                     )
                 }
             }

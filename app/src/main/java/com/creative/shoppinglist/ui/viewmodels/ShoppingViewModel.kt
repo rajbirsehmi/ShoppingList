@@ -2,10 +2,8 @@ package com.creative.shoppinglist.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.creative.shoppinglist.data.local.ShoppingItemEntity
 import com.creative.shoppinglist.domain.model.ShoppingItem
 import com.creative.shoppinglist.domain.repo.ShoppingRepository
-import com.creative.shoppinglist.util.toEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +16,7 @@ class ShoppingViewModel @Inject constructor(
     private val repository: ShoppingRepository
 ) : ViewModel() {
 
-    val regularShoppingItems: StateFlow<List<ShoppingItemEntity>> =
+    val regularShoppingItems: StateFlow<List<ShoppingItem>> =
         repository
             .getRegularShoppingItems()
             .stateIn(
@@ -27,7 +25,7 @@ class ShoppingViewModel @Inject constructor(
                 emptyList()
             )
 
-    val importantShoppingItems: StateFlow<List<ShoppingItemEntity>> =
+    val importantShoppingItems: StateFlow<List<ShoppingItem>> =
         repository
             .getImportantShoppingItems()
             .stateIn(
@@ -38,13 +36,13 @@ class ShoppingViewModel @Inject constructor(
 
     fun insertShoppingItem(shoppingItem: ShoppingItem) {
         viewModelScope.launch {
-            repository.insertShoppingItem(shoppingItem.toEntity())
+            repository.insertShoppingItem(shoppingItem)
         }
     }
 
     fun deleteShoppingItem(shoppingItem: ShoppingItem) {
         viewModelScope.launch {
-            repository.deleteShoppingItem(shoppingItem.toEntity())
+            repository.deleteShoppingItem(shoppingItem)
         }
     }
 

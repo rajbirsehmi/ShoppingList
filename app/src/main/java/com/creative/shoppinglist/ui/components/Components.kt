@@ -716,7 +716,7 @@ fun RegularShoppingItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onCheckedChange(!item.isChecked) }
-            .testTag(TestTags.SHOPPING_ITEM_CARD + item.name),
+            .testTag(TestTags.SHOPPING_ITEM_CARD_REGULAR + item.name),
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = MaterialTheme.shapes.medium,
         tonalElevation = 1.dp
@@ -767,7 +767,7 @@ fun ImportantShoppingItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onCheckedChange(!item.isChecked) }
-            .testTag(TestTags.SHOPPING_ITEM_CARD + item.name),
+            .testTag(TestTags.SHOPPING_ITEM_CARD_IMPORTANT + item.name),
         color = containerColor,
         shape = MaterialTheme.shapes.medium,
         border = if (!item.isChecked) BorderStroke(

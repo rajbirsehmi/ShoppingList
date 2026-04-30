@@ -92,7 +92,6 @@ class ShoppingWorkflowTest {
     fun addImportantItem_appearsInImportantTab() {
         val itemName = "Medicine"
         shoppingRobot(composeTestRule) {
-            clickOn(TestTags.BOTTOM_NAV_ITEM + "Regular")
             openAddItemBottomSheet()
             enterItemName(itemName)
             toggleImportant(true)

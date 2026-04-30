@@ -38,25 +38,45 @@ class ShoppingRobot(private val composeTestRule: ComposeTestRule) : BaseRobot(co
     }
 
     fun assertItemDisplayed(name: String) {
-        val tag = TestTags.SHOPPING_ITEM_CARD + name
+        val regularTag = TestTags.SHOPPING_ITEM_CARD_REGULAR + name
+        val importantTag = TestTags.SHOPPING_ITEM_CARD_IMPORTANT + name
+
         composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
+            composeTestRule.onAllNodesWithTag(regularTag).fetchSemanticsNodes().isNotEmpty() ||
+                    composeTestRule.onAllNodesWithTag(importantTag).fetchSemanticsNodes().isNotEmpty()
         }
-        composeTestRule.onNodeWithTag(tag).assertIsDisplayed()
+
+        if (composeTestRule.onAllNodesWithTag(regularTag).fetchSemanticsNodes().isNotEmpty()) {
+            composeTestRule.onNodeWithTag(regularTag).assertIsDisplayed()
+        } else {
+            composeTestRule.onNodeWithTag(importantTag).assertIsDisplayed()
+        }
     }
 
     fun toggleItemChecked(name: String) {
-        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CHECKBOX + name).performClick()
+        // Try to find either regular or important checkbox
+        val regularTag = TestTags.SHOPPING_ITEM_CHECKBOX + name
+        composeTestRule.onNodeWithTag(regularTag).performClick()
     }
 
     fun deleteItemBySwipe(name: String) {
-        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD + name).performTouchInput {
+        val regularTag = TestTags.SHOPPING_ITEM_CARD_REGULAR + name
+        val importantTag = TestTags.SHOPPING_ITEM_CARD_IMPORTANT + name
+
+        val node = if (composeTestRule.onAllNodesWithTag(regularTag).fetchSemanticsNodes().isNotEmpty()) {
+            composeTestRule.onNodeWithTag(regularTag)
+        } else {
+            composeTestRule.onNodeWithTag(importantTag)
+        }
+
+        node.performTouchInput {
             swipeLeft()
         }
     }
 
     fun assertItemDoesNotExist(name: String) {
-        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD + name).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD_REGULAR + name).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD_IMPORTANT + name).assertDoesNotExist()
     }
 }
 

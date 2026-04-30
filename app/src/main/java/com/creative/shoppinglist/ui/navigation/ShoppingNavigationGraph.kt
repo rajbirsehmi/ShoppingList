@@ -37,7 +37,6 @@ import com.creative.shoppinglist.ui.screens.ShoppingScreenImportant
 import com.creative.shoppinglist.ui.screens.ShoppingScreenRegular
 import com.creative.shoppinglist.ui.viewmodels.ShoppingViewModel
 import com.creative.shoppinglist.util.GenerateToast
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -62,7 +61,6 @@ fun ShoppingNavGraph() {
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
     val showFab = when {
@@ -109,11 +107,8 @@ fun ShoppingNavGraph() {
                 BottomSheetAddItem(
                     viewModel = viewModel,
                     onDismiss = { message ->
-                        scope.launch {
-                            sheetState.hide()
-                            showBottomSheet = false
-                            if (message.isNotBlank()) GenerateToast(context, message)
-                        }
+                        showBottomSheet = false
+                        if (message.isNotBlank()) GenerateToast(context, message)
                     }
                 )
             }

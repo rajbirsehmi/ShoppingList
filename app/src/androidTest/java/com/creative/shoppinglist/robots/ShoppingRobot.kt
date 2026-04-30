@@ -34,9 +34,7 @@ class ShoppingRobot(private val composeTestRule: ComposeTestRule) : BaseRobot(co
         composeTestRule.onNodeWithTag(TestTags.SAVE_ITEM_BUTTON).performClick()
         composeTestRule.waitForIdle()
         // Wait for bottom sheet to be dismissed
-        composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onAllNodesWithTag(TestTags.BOTTOM_SHEET_ADD_ITEM).fetchSemanticsNodes().isEmpty()
-        }
+        composeTestRule.onNodeWithTag(TestTags.BOTTOM_SHEET_ADD_ITEM).assertDoesNotExist()
     }
 
     fun assertItemDisplayed(name: String) {

@@ -100,6 +100,7 @@ class ShoppingWorkflowTest {
             assertItemDoesNotExist(itemName)
 
             // Switch to Important tab and verify
+            waitForIdle()
             clickOn(TestTags.BOTTOM_NAV_ITEM + "Important")
             waitForIdle()
             assertItemDisplayed(itemName)

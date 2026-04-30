@@ -96,11 +96,7 @@ class ShoppingWorkflowTest {
             enterItemName(itemName)
             toggleImportant(true)
             saveItem()
-
-            // Verify it's not in the main list
             assertItemDoesNotExist(itemName)
-
-            // Switch to Important tab and verify
             clickOn(TestTags.BOTTOM_NAV_ITEM + "Important")
             assertItemDisplayed(itemName)
         }

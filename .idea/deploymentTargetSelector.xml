@@ -13,17 +13,6 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="EmptyScreenUiTest">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-04-30T04:28:06.397931500Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Sehmi\.android\avd\Medium_Phone.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
       <SelectionState runConfigName="verifyEmptyScreenContent()">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2026-04-30T04:28:06.397931500Z">
@@ -47,6 +36,17 @@
         <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="addImportantItem_appearsInImportantTab()">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2026-04-30T04:27:19.346871400Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Sehmi\.android\avd\Medium_Phone.avd" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="deleteItem_removesFromList()">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2026-04-30T04:27:19.346871400Z">
           <Target type="DEFAULT_BOOT">

@@ -109,11 +109,10 @@ fun ShoppingNavGraph() {
                 BottomSheetAddItem(
                     viewModel = viewModel,
                     onDismiss = { message ->
-                        scope.launch { sheetState.hide() }.invokeOnCompletion {
-                            if (!sheetState.isVisible) {
-                                if (message.isNotBlank()) GenerateToast(context, message)
-                                showBottomSheet = false
-                            }
+                        scope.launch {
+                            sheetState.hide()
+                            showBottomSheet = false
+                            if (message.isNotBlank()) GenerateToast(context, message)
                         }
                     }
                 )

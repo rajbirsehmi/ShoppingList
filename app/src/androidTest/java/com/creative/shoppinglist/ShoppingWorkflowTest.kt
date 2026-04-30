@@ -98,12 +98,10 @@ class ShoppingWorkflowTest {
             saveItem()
 
             // Verify it's not in the main list
-            waitForIdle()
             assertItemDoesNotExist(itemName)
 
             // Switch to Important tab and verify
             clickOn(TestTags.BOTTOM_NAV_ITEM + "Important")
-            waitForIdle()
             assertItemDisplayed(itemName)
         }
     }

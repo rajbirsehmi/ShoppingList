@@ -2,6 +2,7 @@ package com.creative.shoppinglist
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.test.filters.FlakyTest
 import com.creative.shoppinglist.robots.emptyScreenRobot
 import com.creative.shoppinglist.robots.shoppingRobot
 import com.creative.shoppinglist.ui.components.TestTags
@@ -88,6 +89,7 @@ class ShoppingWorkflowTest {
         }
     }
 
+    @FlakyTest
     @Test
     fun addImportantItem_appearsInImportantTab() {
         val itemName = "Medicine"

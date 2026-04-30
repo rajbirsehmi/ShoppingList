@@ -58,6 +58,18 @@ class ShoppingViewModel @Inject constructor(
         }
     }
 
+    fun toggleItemChecked(item: ShoppingItem) {
+        viewModelScope.launch {
+            item.id?.let { id ->
+                if (item.isChecked) {
+                    repository.markItemAsUndone(id)
+                } else {
+                    repository.markItemAsDone(id)
+                }
+            }
+        }
+    }
+
     fun deleteAllShoppingItems() {
         viewModelScope.launch {
             repository.deleteAllShoppingItems()

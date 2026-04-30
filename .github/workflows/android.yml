@@ -22,6 +22,12 @@ jobs:
         run: chmod +x gradlew
       - name: Run Lint
         run: ./gradlew lintDebug
+      - name: Upload Lint Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: app/build/reports/lint-results-debug.html
 
   unit-tests:
     name: Run Unit Tests
@@ -38,6 +44,12 @@ jobs:
         run: chmod +x gradlew
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest
+      - name: Upload Unit Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-report
+          path: app/build/reports/tests/testDebugUnitTest/
 
   ui-tests:
     name: Run UI Tests
@@ -70,6 +82,12 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: ./gradlew connectedDebugAndroidTest
+      - name: Upload UI Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-report
+          path: app/build/reports/androidTests/connected/
 
   build-apk:
     name: Build Debug APK

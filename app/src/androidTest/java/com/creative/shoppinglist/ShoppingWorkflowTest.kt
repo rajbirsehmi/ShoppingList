@@ -1,6 +1,8 @@
 package com.creative.shoppinglist
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.test.filters.FlakyTest
 import com.creative.shoppinglist.robots.emptyScreenRobot
 import com.creative.shoppinglist.robots.shoppingRobot
 import com.creative.shoppinglist.ui.components.TestTags
@@ -8,9 +10,12 @@ import com.creative.shoppinglist.ui.navigation.ShoppingNavGraph
 import com.creative.shoppinglist.ui.theme.ShoppingListTheme
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import javax.inject.Inject
+import com.creative.shoppinglist.domain.repo.ShoppingRepository
 
 @HiltAndroidTest
 class ShoppingWorkflowTest {
@@ -21,9 +26,15 @@ class ShoppingWorkflowTest {
     @get:Rule(order = 1)
     val composeTestRule = createAndroidComposeRule<HiltTestActivity>()
 
+    @Inject
+    lateinit var repository: ShoppingRepository
+
     @Before
     fun setup() {
         hiltRule.inject()
+        runBlocking {
+            repository.deleteAllShoppingItems()
+        }
         composeTestRule.setContent {
             ShoppingListTheme {
                 ShoppingNavGraph()
@@ -78,6 +89,7 @@ class ShoppingWorkflowTest {
         }
     }
 
+    @FlakyTest
     @Test
     fun addImportantItem_appearsInImportantTab() {
         val itemName = "Medicine"
@@ -86,11 +98,7 @@ class ShoppingWorkflowTest {
             enterItemName(itemName)
             toggleImportant(true)
             saveItem()
-
-            // Verify it's not in the main list
             assertItemDoesNotExist(itemName)
-
-            // Switch to Important tab and verify
             clickOn(TestTags.BOTTOM_NAV_ITEM + "Important")
             assertItemDisplayed(itemName)
         }

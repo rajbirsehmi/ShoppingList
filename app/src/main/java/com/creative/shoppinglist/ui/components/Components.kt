@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,6 +13,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -34,6 +34,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.PriorityHigh
 import androidx.compose.material.icons.outlined.Notifications
@@ -56,6 +57,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -64,6 +67,7 @@ import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -79,6 +83,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
@@ -432,7 +439,9 @@ fun ToggleSettingRow(
         onClick = { onCheckedChange(!isChecked) },
         shape = MaterialTheme.shapes.medium,
         color = Color.Transparent,
-        modifier = modifier
+        modifier = modifier.semantics {
+            toggleableState = if (isChecked) ToggleableState.On else ToggleableState.Off
+        }
     ) {
         Row(
             modifier = Modifier
@@ -457,27 +466,6 @@ fun ToggleSettingRow(
             Switch(
                 checked = isChecked,
                 onCheckedChange = onCheckedChange
-            )
-        }
-    }
-}
-
-@Composable
-fun ReminderTextButton(
-    message: String,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        TextButton(
-            onClick = onClick
-        ) {
-            Text(
-                text = "Reminder: $message",
-                style = MaterialTheme.typography.bodySmall
             )
         }
     }
@@ -668,6 +656,52 @@ fun RowScope.BottomNavBarItem(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SwipeToDeleteContainer(
+    onDelete: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = { dismissValue ->
+            if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
+                onDelete()
+                true
+            } else false
+        }
+    )
+
+    SwipeToDismissBox(
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+        state = dismissState,
+        enableDismissFromStartToEnd = false,
+        backgroundContent = {
+            val color by animateColorAsState(
+                when (dismissState.targetValue) {
+                    SwipeToDismissBoxValue.EndToStart -> Color.Red.copy(alpha = 0.8f)
+                    else -> Color.Transparent
+                }, label = "backgroundColor"
+            )
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(color, shape = MaterialTheme.shapes.medium)
+                    .padding(horizontal = 20.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                val iconAlpha = if (dismissState.progress > 0.1f) 1f else 0f
+                Icon(
+                    Icons.Default.DeleteOutline,
+                    contentDescription = "Delete",
+                    tint = Color.White.copy(alpha = iconAlpha)
+                )
+            }
+        }
+    ) {
+        content()
+    }
+}
+
 @Composable
 fun RegularShoppingItem(
     item: ShoppingItem,
@@ -682,7 +716,7 @@ fun RegularShoppingItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onCheckedChange(!item.isChecked) }
-            .testTag(TestTags.SHOPPING_ITEM_CARD + item.name),
+            .testTag(TestTags.SHOPPING_ITEM_CARD_REGULAR + item.name),
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = MaterialTheme.shapes.medium,
         tonalElevation = 1.dp
@@ -733,7 +767,7 @@ fun ImportantShoppingItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onCheckedChange(!item.isChecked) }
-            .testTag(TestTags.SHOPPING_ITEM_CARD + item.name),
+            .testTag(TestTags.SHOPPING_ITEM_CARD_IMPORTANT + item.name),
         color = containerColor,
         shape = MaterialTheme.shapes.medium,
         border = if (!item.isChecked) BorderStroke(

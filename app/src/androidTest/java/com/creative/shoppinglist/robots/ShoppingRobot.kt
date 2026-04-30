@@ -32,24 +32,56 @@ class ShoppingRobot(private val composeTestRule: ComposeTestRule) : BaseRobot(co
 
     fun saveItem() {
         composeTestRule.onNodeWithTag(TestTags.SAVE_ITEM_BUTTON).performClick()
-    }
-
-    fun assertItemDisplayed(name: String) {
-        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD + name).assertIsDisplayed()
-    }
-
-    fun toggleItemChecked(name: String) {
-        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CHECKBOX + name).performClick()
-    }
-
-    fun deleteItemBySwipe(name: String) {
-        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD + name).performTouchInput {
-            swipeLeft()
+        composeTestRule.waitForIdle()
+        // Wait for bottom sheet to be dismissed
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onAllNodesWithTag(TestTags.BOTTOM_SHEET_ADD_ITEM).fetchSemanticsNodes().isEmpty()
         }
     }
 
+    fun assertItemDisplayed(name: String) {
+        val regularTag = TestTags.SHOPPING_ITEM_CARD_REGULAR + name
+        val importantTag = TestTags.SHOPPING_ITEM_CARD_IMPORTANT + name
+
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onAllNodesWithTag(regularTag).fetchSemanticsNodes().isNotEmpty() ||
+                    composeTestRule.onAllNodesWithTag(importantTag).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        if (composeTestRule.onAllNodesWithTag(regularTag).fetchSemanticsNodes().isNotEmpty()) {
+            composeTestRule.onNodeWithTag(regularTag).assertIsDisplayed()
+        } else {
+            composeTestRule.onNodeWithTag(importantTag).assertIsDisplayed()
+        }
+    }
+
+    fun toggleItemChecked(name: String) {
+        // Try to find either regular or important checkbox
+        val regularTag = TestTags.SHOPPING_ITEM_CHECKBOX + name
+        composeTestRule.onNodeWithTag(regularTag).performClick()
+    }
+
+    fun deleteItemBySwipe(name: String) {
+        val regularTag = TestTags.SHOPPING_ITEM_CARD_REGULAR + name
+        val importantTag = TestTags.SHOPPING_ITEM_CARD_IMPORTANT + name
+
+        val node = if (composeTestRule.onAllNodesWithTag(regularTag).fetchSemanticsNodes().isNotEmpty()) {
+            composeTestRule.onNodeWithTag(regularTag)
+        } else {
+            composeTestRule.onNodeWithTag(importantTag)
+        }
+
+        node.performTouchInput {
+            swipeLeft()
+        }
+        composeTestRule.waitForIdle()
+    }
+
     fun assertItemDoesNotExist(name: String) {
-        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD + name).assertDoesNotExist()
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onAllNodesWithTag(TestTags.SHOPPING_ITEM_CARD_REGULAR + name).fetchSemanticsNodes().isEmpty() &&
+                    composeTestRule.onAllNodesWithTag(TestTags.SHOPPING_ITEM_CARD_IMPORTANT + name).fetchSemanticsNodes().isEmpty()
+        }
     }
 }
 

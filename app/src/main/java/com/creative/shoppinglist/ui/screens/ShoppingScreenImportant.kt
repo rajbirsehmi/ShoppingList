@@ -1,37 +1,23 @@
 package com.creative.shoppinglist.ui.screens
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DeleteOutline
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.creative.shoppinglist.domain.model.ShoppingItem
 import com.creative.shoppinglist.ui.components.ImportantShoppingItem
+import com.creative.shoppinglist.ui.components.SwipeToDeleteContainer
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingScreenImportant(
     items: List<ShoppingItem>,
     onDelete: (ShoppingItem) -> Unit,
-    onToggleDone: (ShoppingItem) -> Unit
+    onToggleDone: (ShoppingItem) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -43,44 +29,12 @@ fun ShoppingScreenImportant(
             items = items,
             key = { it.id ?: it.hashCode() }
         ) { item ->
-            val dismissState = rememberSwipeToDismissBoxState(
-                confirmValueChange = { dismissValue ->
-                    if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
-                        onDelete(item)
-                        true
-                    } else false
-                }
-            )
-            SwipeToDismissBox(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                state = dismissState,
-                backgroundContent = {
-                    val color by animateColorAsState(
-                        when (dismissState.targetValue) {
-                            SwipeToDismissBoxValue.EndToStart -> Color.Red.copy(alpha = 0.8f)
-                            else -> Color.Transparent
-                        }, label = "backgroundColor"
-                    )
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(color, shape = MaterialTheme.shapes.medium)
-                            .padding(horizontal = 20.dp),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        val iconAlpha = if (dismissState.progress > 0.1f) 1f else 0f
-                        Icon(
-                            Icons.Default.DeleteOutline,
-                            contentDescription = "Delete",
-                            tint = Color.White.copy(alpha = iconAlpha)
-                        )
-                    }
-                }
+            SwipeToDeleteContainer(
+                onDelete = { onDelete(item) }
             ) {
                 ImportantShoppingItem(
-                    item = item,
-                    onCheckedChange = { onToggleDone(item) }
-                )
+                    item = item
+                ) { onToggleDone(item) }
             }
         }
     }

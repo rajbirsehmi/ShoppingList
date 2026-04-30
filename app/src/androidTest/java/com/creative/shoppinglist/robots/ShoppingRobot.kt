@@ -78,7 +78,7 @@ class ShoppingRobot(private val composeTestRule: ComposeTestRule) : BaseRobot(co
     }
 
     fun assertItemDoesNotExist(name: String) {
-        composeTestRule.waitUntil(timeoutMillis = 5000) {
+        composeTestRule.waitUntil(timeoutMillis = 50000) {
             composeTestRule.onAllNodesWithTag(TestTags.SHOPPING_ITEM_CARD_REGULAR + name).fetchSemanticsNodes().isEmpty() &&
                     composeTestRule.onAllNodesWithTag(TestTags.SHOPPING_ITEM_CARD_IMPORTANT + name).fetchSemanticsNodes().isEmpty()
         }

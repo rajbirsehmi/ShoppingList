@@ -32,10 +32,17 @@ class ShoppingRobot(private val composeTestRule: ComposeTestRule) : BaseRobot(co
 
     fun saveItem() {
         composeTestRule.onNodeWithTag(TestTags.SAVE_ITEM_BUTTON).performClick()
+        composeTestRule.waitForIdle()
+        // Wait for bottom sheet to be dismissed
+        composeTestRule.onNodeWithTag(TestTags.BOTTOM_SHEET_ADD_ITEM).assertDoesNotExist()
     }
 
     fun assertItemDisplayed(name: String) {
-        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD + name).assertIsDisplayed()
+        val tag = TestTags.SHOPPING_ITEM_CARD + name
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeTestRule.onNodeWithTag(tag).assertIsDisplayed()
     }
 
     fun toggleItemChecked(name: String) {

@@ -9,4 +9,8 @@ open class BaseRobot(private val composeTestRule: ComposeTestRule) {
     fun clickOn(tag: String) {
         composeTestRule.onNodeWithTag(tag).performClick()
     }
+
+    fun waitForIdle() {
+        composeTestRule.waitForIdle()
+    }
 }

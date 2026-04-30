@@ -8,9 +8,12 @@ import com.creative.shoppinglist.ui.navigation.ShoppingNavGraph
 import com.creative.shoppinglist.ui.theme.ShoppingListTheme
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import javax.inject.Inject
+import com.creative.shoppinglist.domain.repo.ShoppingRepository
 
 @HiltAndroidTest
 class ShoppingWorkflowTest {
@@ -21,9 +24,15 @@ class ShoppingWorkflowTest {
     @get:Rule(order = 1)
     val composeTestRule = createAndroidComposeRule<HiltTestActivity>()
 
+    @Inject
+    lateinit var repository: ShoppingRepository
+
     @Before
     fun setup() {
         hiltRule.inject()
+        runBlocking {
+            repository.deleteAllShoppingItems()
+        }
         composeTestRule.setContent {
             ShoppingListTheme {
                 ShoppingNavGraph()
@@ -92,6 +101,7 @@ class ShoppingWorkflowTest {
 
             // Switch to Important tab and verify
             clickOn(TestTags.BOTTOM_NAV_ITEM + "Important")
+            waitForIdle()
             assertItemDisplayed(itemName)
         }
     }

@@ -34,7 +34,9 @@ class ShoppingRobot(private val composeTestRule: ComposeTestRule) : BaseRobot(co
         composeTestRule.onNodeWithTag(TestTags.SAVE_ITEM_BUTTON).performClick()
         composeTestRule.waitForIdle()
         // Wait for bottom sheet to be dismissed
-        composeTestRule.onNodeWithTag(TestTags.BOTTOM_SHEET_ADD_ITEM).assertDoesNotExist()
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onAllNodesWithTag(TestTags.BOTTOM_SHEET_ADD_ITEM).fetchSemanticsNodes().isEmpty()
+        }
     }
 
     fun assertItemDisplayed(name: String) {
@@ -72,11 +74,14 @@ class ShoppingRobot(private val composeTestRule: ComposeTestRule) : BaseRobot(co
         node.performTouchInput {
             swipeLeft()
         }
+        composeTestRule.waitForIdle()
     }
 
     fun assertItemDoesNotExist(name: String) {
-        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD_REGULAR + name).assertDoesNotExist()
-        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD_IMPORTANT + name).assertDoesNotExist()
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onAllNodesWithTag(TestTags.SHOPPING_ITEM_CARD_REGULAR + name).fetchSemanticsNodes().isEmpty() &&
+                    composeTestRule.onAllNodesWithTag(TestTags.SHOPPING_ITEM_CARD_IMPORTANT + name).fetchSemanticsNodes().isEmpty()
+        }
     }
 }
 

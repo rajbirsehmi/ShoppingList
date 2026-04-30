@@ -1,67 +1,58 @@
 package com.creative.shoppinglist.robots
 
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.hasText
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.ComposeTestRule
-import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performTextInput
+import com.creative.shoppinglist.ui.components.TestTags
 
-class ShoppingRobot(private val composeTestRule: ComposeTestRule) {
+class ShoppingRobot(private val composeTestRule: ComposeTestRule) : BaseRobot(composeTestRule) {
 
-    fun clickAddFab() {
-        composeTestRule.onNodeWithContentDescription("Add Item").performClick()
+    fun openAddItemBottomSheet() {
+        // Can be opened via FAB or Empty Screen button
+        try {
+            composeTestRule.onNodeWithTag(TestTags.FAB_ADD_ITEM).performClick()
+        } catch (e: AssertionError) {
+            composeTestRule.onNodeWithTag(TestTags.EMPTY_SCREEN_ADD_BUTTON).performClick()
+        }
     }
 
     fun enterItemName(name: String) {
-        composeTestRule.onNodeWithText("What do you need to buy?").performTextInput(name)
+        composeTestRule.onNodeWithTag(TestTags.ITEM_NAME_INPUT).performTextInput(name)
     }
 
-    fun toggleImportant() {
-        composeTestRule.onNodeWithText("Mark as Important").performClick()
+    fun toggleImportant(isImportant: Boolean) {
+        val node = composeTestRule.onNodeWithTag(TestTags.ITEM_IMPORTANT_SWITCH)
+        val isChecked = node.fetchSemanticsNode().config.getOrElse(SemanticsProperties.ToggleableState) { ToggleableState.Off } == ToggleableState.On
+        if (isChecked != isImportant) {
+            node.performClick()
+        }
     }
 
-    fun toggleReminder() {
-        composeTestRule.onNodeWithText("Set Reminder").performClick()
+
+    fun saveItem() {
+        composeTestRule.onNodeWithTag(TestTags.SAVE_ITEM_BUTTON).performClick()
     }
 
-    fun clickConfirmDate() {
-        // Assuming "Next" is the button text in the DatePicker based on Components.kt
-        composeTestRule.onNodeWithText("Next").performClick()
+    fun assertItemDisplayed(name: String) {
+        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD + name).assertIsDisplayed()
     }
 
-    fun clickConfirmTime() {
-        // Assuming "OK" is the button text in the TimePicker based on Components.kt
-        composeTestRule.onNodeWithText("OK").performClick()
+    fun toggleItemChecked(name: String) {
+        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CHECKBOX + name).performClick()
     }
 
-    fun clickAddItemButton() {
-        composeTestRule.onNodeWithText("Add to List").performClick()
+    fun deleteItemBySwipe(name: String) {
+        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD + name).performTouchInput {
+            swipeLeft()
+        }
     }
 
-    fun verifyItemExists(name: String) {
-        composeTestRule.onNodeWithText(name).assertIsDisplayed()
-    }
-
-    fun clickItem(name: String) {
-        composeTestRule.onNodeWithText(name).performClick()
-    }
-
-    fun navigateToImportant() {
-        composeTestRule.onNodeWithContentDescription("Important").performClick()
-    }
-
-    fun navigateToRegular() {
-        composeTestRule.onNodeWithContentDescription("Regular").performClick()
-    }
-
-    fun verifyEmptyState(message: String) {
-        composeTestRule.onNodeWithText(message).assertIsDisplayed()
+    fun assertItemDoesNotExist(name: String) {
+        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD + name).assertDoesNotExist()
     }
 }
 
 fun shoppingRobot(composeTestRule: ComposeTestRule, func: ShoppingRobot.() -> Unit) =
     ShoppingRobot(composeTestRule).apply { func() }
+

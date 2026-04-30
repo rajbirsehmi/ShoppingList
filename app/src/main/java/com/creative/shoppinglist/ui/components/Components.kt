@@ -1,7 +1,13 @@
 package com.creative.shoppinglist.ui.components
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.os.Build
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
@@ -72,6 +78,7 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextDecoration
@@ -79,6 +86,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -100,7 +108,9 @@ fun FloatingActionButtonAddShoppingItem(
     onClick: () -> Unit
 ) {
     FloatingActionButton(
-        modifier = Modifier.padding(16.dp), onClick = {
+        modifier = Modifier
+            .padding(16.dp)
+            .testTag(TestTags.FAB_ADD_ITEM), onClick = {
             onClick()
         }) {
         Icon(Icons.Default.Add, contentDescription = "Add Item")
@@ -122,7 +132,8 @@ fun TopAppBarShoppingItem(scrollBehavior: TopAppBarScrollBehavior? = null) {
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
             scrolledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
+        ),
+        modifier = Modifier.testTag(TestTags.MAIN_SCREEN_TOP_APP_BAR)
     )
 }
 
@@ -151,6 +162,18 @@ fun BottomSheetAddItem(
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            isRemindable = true
+            showDatePicker = true
+        } else {
+            isRemindable = false
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     Column(
         modifier = Modifier
             .padding(horizontal = 20.dp)
@@ -158,7 +181,8 @@ fun BottomSheetAddItem(
             .navigationBarsPadding()
             .statusBarsPadding()
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(rememberScrollState())
+            .testTag(TestTags.BOTTOM_SHEET_ADD_ITEM),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Handle bar for visual cue (usually added by ModalBottomSheet, but safe to add if custom)
@@ -174,7 +198,10 @@ fun BottomSheetAddItem(
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
-            IconButton(onClick = { onDismiss("") }) {
+            IconButton(
+                onClick = { onDismiss("") },
+                modifier = Modifier.testTag(TestTags.CLOSE_BOTTOM_SHEET)
+            ) {
                 Icon(Icons.Default.Close, contentDescription = "Close")
             }
         }
@@ -186,6 +213,7 @@ fun BottomSheetAddItem(
             errorText = "Please enter a name",
             label = "What do you need to buy?",
             isNameEmpty = isNameEmpty,
+            modifier = Modifier.testTag(TestTags.ITEM_NAME_INPUT),
             onValueChange = {
                 itemName = it
                 if (it.isNotBlank()) isNameEmpty = false
@@ -209,6 +237,7 @@ fun BottomSheetAddItem(
             message = "Mark as Important",
             icon = Icons.Default.PriorityHigh,
             isChecked = isImportant,
+            modifier = Modifier.testTag(TestTags.ITEM_IMPORTANT_SWITCH),
             onCheckedChange = {
                 isImportant = it
                 if (!it) isRemindable = false
@@ -226,9 +255,23 @@ fun BottomSheetAddItem(
                 message = "Set Reminder",
                 icon = Icons.Outlined.Notifications,
                 isChecked = isRemindable,
-                onCheckedChange = {
-                    isRemindable = it
-                    if (it) showDatePicker = true
+                modifier = Modifier.testTag(TestTags.ITEM_REMINDER_SWITCH),
+                onCheckedChange = { checked ->
+                    if (checked) {
+                        val hasPermission = ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+
+                        if (hasPermission) {
+                            isRemindable = true
+                            showDatePicker = true
+                        } else {
+                            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    } else {
+                        isRemindable = false
+                    }
                 }
             )
             
@@ -237,7 +280,8 @@ fun BottomSheetAddItem(
                     onClick = { showDatePicker = true },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 48.dp, top = 4.dp, bottom = 8.dp),
+                        .padding(start = 48.dp, top = 4.dp, bottom = 8.dp)
+                        .testTag(TestTags.ITEM_REMINDER_BUTTON),
                     shape = MaterialTheme.shapes.small,
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                 ) {
@@ -261,9 +305,10 @@ fun BottomSheetAddItem(
         Button(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .height(56.dp)
+                .testTag(TestTags.SAVE_ITEM_BUTTON),
             shape = MaterialTheme.shapes.large,
-            onClick = @androidx.annotation.RequiresPermission(android.Manifest.permission.SCHEDULE_EXACT_ALARM) {
+            onClick = @androidx.annotation.RequiresPermission(Manifest.permission.SCHEDULE_EXACT_ALARM) {
                 val trimmedName = itemName.trim()
                 if (trimmedName.isEmpty()) {
                     isNameEmpty = true
@@ -305,7 +350,7 @@ fun BottomSheetAddItem(
             MyDatePickerDialog(
                 labelNext = "Next",
                 labelCancel = "Cancel",
-                datePickerState,
+                datePickerState = datePickerState,
                 onDismissButton = {
                     showDatePicker = false
                     if (remindMeOn == 0L) isRemindable = false
@@ -316,7 +361,8 @@ fun BottomSheetAddItem(
                 },
                 onPickerDismiss = {
                     showDatePicker = false
-                }
+                },
+                modifier = Modifier.testTag(TestTags.DATE_PICKER_CONFIRM)
             )
         }
 
@@ -337,6 +383,7 @@ fun BottomSheetAddItem(
 
 @Composable
 fun ItemNameInput(
+    modifier: Modifier = Modifier,
     itemName: String,
     errorText: String,
     label: String,
@@ -345,7 +392,7 @@ fun ItemNameInput(
     onValueChange: (String) -> Unit
 ) {
     OutlinedTextField(
-        modifier = Modifier
+        modifier = modifier
             .padding(top = 4.dp)
             .fillMaxWidth(),
         maxLines = 1,
@@ -375,6 +422,7 @@ fun ItemNameInput(
 
 @Composable
 fun ToggleSettingRow(
+    modifier: Modifier = Modifier,
     message: String,
     icon: ImageVector? = null,
     isChecked: Boolean,
@@ -383,7 +431,8 @@ fun ToggleSettingRow(
     Surface(
         onClick = { onCheckedChange(!isChecked) },
         shape = MaterialTheme.shapes.medium,
-        color = Color.Transparent
+        color = Color.Transparent,
+        modifier = modifier
     ) {
         Row(
             modifier = Modifier
@@ -475,8 +524,10 @@ fun MyTimePickerDialog(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyDatePickerDialog(
+    modifier: Modifier = Modifier,
     labelNext: String,
     labelCancel: String,
     datePickerState: DatePickerState,
@@ -485,19 +536,26 @@ fun MyDatePickerDialog(
     onPickerDismiss: () -> Unit
 ) {
     DatePickerDialog(
+        modifier = modifier,
         onDismissRequest = {
             onPickerDismiss()
         },
         confirmButton = {
-            TextButton(onClick = {
-                onConfirmButton()
-            }) {
+            TextButton(
+                onClick = {
+                    onConfirmButton()
+                },
+                modifier = Modifier.testTag(TestTags.DATE_PICKER_CONFIRM)
+            ) {
                 Text(labelNext)
             }
         }, dismissButton = {
-            TextButton(onClick = {
-                onDismissButton()
-            }) {
+            TextButton(
+                onClick = {
+                    onDismissButton()
+                },
+                modifier = Modifier.testTag(TestTags.DATE_PICKER_CANCEL)
+            ) {
                 Text(labelCancel)
             }
         }) {
@@ -512,7 +570,6 @@ fun MyDatePickerDialog(
     showSystemUi = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES
 )
-
 fun FloatingActionButtonAddShoppingItemPreview() {
     BottomSheetAddItem(
         onDismiss = {}
@@ -549,8 +606,14 @@ fun TimePickerDialog(
                 )
                 content()
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = onDismissRequest) { Text("Cancel") }
-                    TextButton(onClick = onConfirm) { Text("OK") }
+                    TextButton(
+                        onClick = onDismissRequest,
+                        modifier = Modifier.testTag(TestTags.TIME_PICKER_CANCEL)
+                    ) { Text("Cancel") }
+                    TextButton(
+                        onClick = onConfirm,
+                        modifier = Modifier.testTag(TestTags.TIME_PICKER_CONFIRM)
+                    ) { Text("OK") }
                 }
             }
         }
@@ -570,6 +633,7 @@ fun RowScope.BottomNavBarItem(
 
     NavigationBarItem(
         selected = selected,
+        modifier = Modifier.testTag(TestTags.BOTTOM_NAV_ITEM + type),
         onClick = {
             navController.navigate(route) {
                 popUpTo(navController.graph.findStartDestination().id) {
@@ -617,7 +681,8 @@ fun RegularShoppingItem(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onCheckedChange(!item.isChecked) },
+            .clickable { onCheckedChange(!item.isChecked) }
+            .testTag(TestTags.SHOPPING_ITEM_CARD + item.name),
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = MaterialTheme.shapes.medium,
         tonalElevation = 1.dp
@@ -637,7 +702,8 @@ fun RegularShoppingItem(
                     checked = item.isChecked,
                     onCheckedChange = {
                         onCheckedChange(it)
-                    }
+                    },
+                    modifier = Modifier.testTag(TestTags.SHOPPING_ITEM_CHECKBOX + item.name)
                 )
             },
             colors = ListItemDefaults.colors(containerColor = Color.Transparent)
@@ -666,7 +732,8 @@ fun ImportantShoppingItem(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onCheckedChange(!item.isChecked) },
+            .clickable { onCheckedChange(!item.isChecked) }
+            .testTag(TestTags.SHOPPING_ITEM_CARD + item.name),
         color = containerColor,
         shape = MaterialTheme.shapes.medium,
         border = if (!item.isChecked) BorderStroke(
@@ -724,7 +791,8 @@ fun ImportantShoppingItem(
                     checked = item.isChecked,
                     onCheckedChange = {
                         onCheckedChange(it)
-                    }
+                    },
+                    modifier = Modifier.testTag(TestTags.SHOPPING_ITEM_CHECKBOX + item.name)
                 )
             },
             colors = ListItemDefaults.colors(containerColor = Color.Transparent)

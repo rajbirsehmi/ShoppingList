@@ -1,6 +1,7 @@
 package com.creative.shoppinglist
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import com.creative.shoppinglist.robots.emptyScreenRobot
 import com.creative.shoppinglist.robots.shoppingRobot
 import com.creative.shoppinglist.ui.components.TestTags
@@ -91,16 +92,17 @@ class ShoppingWorkflowTest {
     fun addImportantItem_appearsInImportantTab() {
         val itemName = "Medicine"
         shoppingRobot(composeTestRule) {
+            clickOn(TestTags.BOTTOM_NAV_ITEM + "Regular")
             openAddItemBottomSheet()
             enterItemName(itemName)
             toggleImportant(true)
             saveItem()
 
             // Verify it's not in the main list
+            waitForIdle()
             assertItemDoesNotExist(itemName)
 
             // Switch to Important tab and verify
-            waitForIdle()
             clickOn(TestTags.BOTTOM_NAV_ITEM + "Important")
             waitForIdle()
             assertItemDisplayed(itemName)

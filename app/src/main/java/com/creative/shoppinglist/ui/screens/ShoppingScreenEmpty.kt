@@ -1,7 +1,6 @@
 package com.creative.shoppinglist.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
@@ -21,6 +20,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+import androidx.compose.ui.platform.testTag
+import com.creative.shoppinglist.ui.components.TestTags
+
 @Composable
 fun ShoppingScreenEmpty(
     message: String,
@@ -32,9 +34,8 @@ fun ShoppingScreenEmpty(
 
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(animationSpec = tween(1000)) + slideInVertically(
-            initialOffsetY = { it / 10 },
-            animationSpec = tween(1000)
+        enter = fadeIn() + slideInVertically(
+            initialOffsetY = { it / 10 }
         )
     ) {
         Column(
@@ -56,6 +57,7 @@ fun ShoppingScreenEmpty(
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(80.dp)
+                        .testTag(TestTags.EMPTY_SCREEN_ICON)
                 )
             }
 
@@ -66,7 +68,8 @@ fun ShoppingScreenEmpty(
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.testTag(TestTags.EMPTY_SCREEN_MAIN_MESSAGE)
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -76,7 +79,8 @@ fun ShoppingScreenEmpty(
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp).
+                    testTag(TestTags.EMPTY_SCREEN_SUB_MESSAGE)
             )
 
             if (onActionClick != null) {
@@ -84,7 +88,8 @@ fun ShoppingScreenEmpty(
                 Button(
                     onClick = onActionClick,
                     shape = MaterialTheme.shapes.medium,
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
+                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp),
+                    modifier = Modifier.testTag(TestTags.EMPTY_SCREEN_ADD_BUTTON)
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))

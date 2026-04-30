@@ -18,7 +18,7 @@ android {
         versionCode = 2
         versionName = "1.2"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.creative.shoppinglist.HiltTestRunner"
     }
 
     buildTypes {
@@ -36,6 +36,18 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+
+    testOptions {
+        managedDevices {
+            localDevices {
+                create("device1") {
+                    device = "Pixel 2"
+                    apiLevel = 33
+                    systemImageSource = "aosp-atd"
+                }
+            }
+        }
     }
 }
 
@@ -79,8 +91,14 @@ dependencies {
     // --- UI Testing ---
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.rules)
+    androidTestImplementation(libs.androidx.test.core.ktx)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.monitor)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.android.compiler)
 
     // --- Debug Tools ---
     debugImplementation(libs.androidx.compose.ui.tooling)

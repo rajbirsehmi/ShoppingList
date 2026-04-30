@@ -1,0 +1,58 @@
+package com.creative.shoppinglist.robots
+
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.state.ToggleableState
+import androidx.compose.ui.test.*
+import androidx.compose.ui.test.junit4.ComposeTestRule
+import com.creative.shoppinglist.ui.components.TestTags
+
+class ShoppingRobot(private val composeTestRule: ComposeTestRule) : BaseRobot(composeTestRule) {
+
+    fun openAddItemBottomSheet() {
+        // Can be opened via FAB or Empty Screen button
+        try {
+            composeTestRule.onNodeWithTag(TestTags.FAB_ADD_ITEM).performClick()
+        } catch (e: AssertionError) {
+            composeTestRule.onNodeWithTag(TestTags.EMPTY_SCREEN_ADD_BUTTON).performClick()
+        }
+    }
+
+    fun enterItemName(name: String) {
+        composeTestRule.onNodeWithTag(TestTags.ITEM_NAME_INPUT).performTextInput(name)
+    }
+
+    fun toggleImportant(isImportant: Boolean) {
+        val node = composeTestRule.onNodeWithTag(TestTags.ITEM_IMPORTANT_SWITCH)
+        val isChecked = node.fetchSemanticsNode().config.getOrElse(SemanticsProperties.ToggleableState) { ToggleableState.Off } == ToggleableState.On
+        if (isChecked != isImportant) {
+            node.performClick()
+        }
+    }
+
+
+    fun saveItem() {
+        composeTestRule.onNodeWithTag(TestTags.SAVE_ITEM_BUTTON).performClick()
+    }
+
+    fun assertItemDisplayed(name: String) {
+        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD + name).assertIsDisplayed()
+    }
+
+    fun toggleItemChecked(name: String) {
+        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CHECKBOX + name).performClick()
+    }
+
+    fun deleteItemBySwipe(name: String) {
+        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD + name).performTouchInput {
+            swipeLeft()
+        }
+    }
+
+    fun assertItemDoesNotExist(name: String) {
+        composeTestRule.onNodeWithTag(TestTags.SHOPPING_ITEM_CARD + name).assertDoesNotExist()
+    }
+}
+
+fun shoppingRobot(composeTestRule: ComposeTestRule, func: ShoppingRobot.() -> Unit) =
+    ShoppingRobot(composeTestRule).apply { func() }
+

@@ -21,7 +21,7 @@ class ShoppingViewModel @Inject constructor(
             .getRegularShoppingItems()
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(5000),
+                SharingStarted.WhileSubscribed(500),
                 emptyList()
             )
 
@@ -30,7 +30,7 @@ class ShoppingViewModel @Inject constructor(
             .getImportantShoppingItems()
             .stateIn(
                 viewModelScope,
-                SharingStarted.WhileSubscribed(5000),
+                SharingStarted.WhileSubscribed(500),
                 emptyList()
             )
 

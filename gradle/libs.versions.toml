@@ -15,6 +15,8 @@ activityCompose = "1.13.0"
 navigationCompose = "2.9.8"
 kotlin = "2.3.21"
 kotlinxSerializationJson = "1.11.0"
+slf4j = "2.0.17"
+logbackAndroid = "3.0.0"
 composeBom = "2026.04.01"
 room = "2.8.4"
 ksp = "2.3.7"
@@ -51,6 +53,8 @@ androidx-compose-foundation-layout = { group = "androidx.compose.foundation", na
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeKtx" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
+logback-android = { group = "com.github.tony19", name = "logback-android", version.ref = "logbackAndroid" }
 androidx-rules = { group = "androidx.test", name = "rules", version.ref = "rules" }
 androidx-test-core = { group = "androidx.test", name = "core", version.ref = "rules" }
 androidx-test-core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "rules" }

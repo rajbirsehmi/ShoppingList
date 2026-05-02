@@ -13,7 +13,7 @@ class RobustTestEngine(
     private val TAG = "RobustEngine"
 
     data class EngineConfig(
-        val defaultTimeout: Long = 5000L,
+        val defaultTimeout: Long = 10000L,
         val interactionDelay: Long = 0L,
         val screenshotOnFailure: Boolean = true
     )

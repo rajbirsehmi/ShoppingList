@@ -26,7 +26,7 @@
       </SelectionState>
       <SelectionState runConfigName="addItemFromJson_isDisplayedCorrectly()">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-04-30T04:27:19.346871400Z">
+        <DropdownSelection timestamp="2026-05-02T08:51:28.782768900Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Sehmi\.android\avd\Medium_Phone.avd" />

@@ -102,12 +102,14 @@ class ShoppingItemJsonTest(private val model: ShoppingItemTestModel) {
             onShoppingScreen {
                 openAddItemBottomSheet()
                 enterItemName(model.itemName)
-                if (model.isImportant) {
-                    toggleImportant(isImportant = true)
-                }
+                toggleImportant(model.isImportant)
                 saveItem()
                 if (model.isImportant) {
+                    waitForIdle()
                     clickOn(TestTags.BOTTOM_NAV_ITEM + "Important")
+                    waitForIdle()
+                } else {
+                    waitForIdle()
                 }
                 assertItemDisplayed(model.itemName)
             }

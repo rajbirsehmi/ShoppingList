@@ -1,7 +1,6 @@
 package com.creative.shoppinglist
 
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.test.filters.FlakyTest
 import com.creative.shoppinglist.core.testing.TestTags
 import com.creative.shoppinglist.core.testing.robots.launchTestingEngine
 import com.creative.shoppinglist.ui.navigation.ShoppingNavGraph
@@ -94,7 +93,6 @@ class ShoppingWorkflowTest {
         }
     }
 
-    @FlakyTest
     @Test
     fun addImportantItem_appearsInImportantTab() {
         val itemName = "Medicine"
@@ -104,8 +102,14 @@ class ShoppingWorkflowTest {
                 enterItemName(itemName)
                 toggleImportant(true)
                 saveItem()
-                assertItemDoesNotExist(itemName)
+                
+                // Ensure the item is NOT on the regular screen
+                assertDoesNotExist(TestTags.SHOPPING_ITEM_CARD_REGULAR + itemName)
+                
+                waitForIdle()
                 clickOn(TestTags.BOTTOM_NAV_ITEM + "Important")
+                waitForIdle()
+
                 assertItemDisplayed(itemName)
             }
         }

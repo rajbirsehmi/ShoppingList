@@ -35,6 +35,7 @@ class ShoppingRobot(
         val isChecked = node.fetchSemanticsNode().config.getOrElse(SemanticsProperties.ToggleableState) { ToggleableState.Off } == ToggleableState.On
         if (isChecked != isImportant) {
             node.performClick()
+            waitForIdle()
         }
     }
 

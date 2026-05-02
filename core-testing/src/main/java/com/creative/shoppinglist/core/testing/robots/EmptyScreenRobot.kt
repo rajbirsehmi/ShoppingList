@@ -2,8 +2,12 @@ package com.creative.shoppinglist.core.testing.robots
 
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import com.creative.shoppinglist.core.testing.TestTags
+import com.creative.shoppinglist.core.testing.engine.RobustTestEngine
 
-class EmptyScreenRobot(composeTestRule: ComposeTestRule): BaseRobot(composeTestRule) {
+class EmptyScreenRobot(
+    composeTestRule: ComposeTestRule,
+    engine: RobustTestEngine = RobustTestEngine(composeTestRule)
+): BaseRobot(composeTestRule, engine) {
 
     fun assertEmptyScreenMainMessageIsDisplayed() {
         assertDisplayed(TestTags.EMPTY_SCREEN_MAIN_MESSAGE)

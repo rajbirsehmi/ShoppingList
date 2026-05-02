@@ -1,4 +1,4 @@
-package com.creative.shoppinglist
+package com.creative.shoppinglist.core.testing
 
 import android.app.Application
 import android.content.Context

@@ -2,8 +2,12 @@ package com.creative.shoppinglist.core.testing.robots
 
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import com.creative.shoppinglist.core.testing.TestTags
+import com.creative.shoppinglist.core.testing.engine.RobustTestEngine
 
-class HomeScreenRobot(composeTestRule: ComposeTestRule) : BaseRobot(composeTestRule) {
+class HomeScreenRobot(
+    composeTestRule: ComposeTestRule,
+    engine: RobustTestEngine = RobustTestEngine(composeTestRule)
+) : BaseRobot(composeTestRule, engine) {
 
     fun assertHomeScreenTitleIsDisplayed() {
         assertDisplayed(TestTags.MAIN_SCREEN_TOP_APP_BAR)

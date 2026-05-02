@@ -21,7 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 import androidx.compose.ui.platform.testTag
-import com.creative.shoppinglist.ui.components.TestTags
+import com.creative.shoppinglist.core.testing.TestTags
 
 @Composable
 fun ShoppingScreenEmpty(

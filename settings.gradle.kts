@@ -24,3 +24,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "ShoppingList"
 include(":app")
+include(":core-testing")
+include(":app-ui-tests")
+include(":lint")

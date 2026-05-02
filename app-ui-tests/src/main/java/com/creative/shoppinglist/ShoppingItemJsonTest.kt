@@ -1,6 +1,7 @@
 package com.creative.shoppinglist
 
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import com.creative.shoppinglist.core.testing.TestTags
 import com.creative.shoppinglist.core.testing.robots.launchTestingEngine
@@ -47,8 +48,11 @@ class ShoppingItemJsonTest(private val model: ShoppingItemTestModel) {
         @Parameterized.Parameters(name = "{0}")
         fun data(): List<ShoppingItemTestModel> {
             val instrumentation = InstrumentationRegistry.getInstrumentation()
-            // Try both test context and target context
-            val contexts = listOf(instrumentation.context, instrumentation.targetContext)
+            val contexts = listOf(
+                instrumentation.context,
+                instrumentation.targetContext,
+                ApplicationProvider.getApplicationContext()
+            )
 
             for (context in contexts) {
                 try {
@@ -60,7 +64,21 @@ class ShoppingItemJsonTest(private val model: ShoppingItemTestModel) {
                     // Continue to try the next context
                 }
             }
-            throw FileNotFoundException("shopping_items.json not found in any context (test or target)")
+
+            // Fallback: Try ClassLoader
+            try {
+                val jsonString = ShoppingItemJsonTest::class.java.classLoader
+                    ?.getResourceAsStream("assets/shopping_items.json")
+                    ?.bufferedReader()
+                    ?.use { it.readText() }
+                if (jsonString != null) {
+                    return Json.decodeFromString(jsonString)
+                }
+            } catch (e: Exception) {
+                // Ignore
+            }
+
+            throw FileNotFoundException("shopping_items.json not found in test context, target context, or via classloader")
         }
     }
 

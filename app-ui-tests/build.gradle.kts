@@ -22,6 +22,12 @@ android {
         compose = true
     }
 
+    sourceSets {
+        getByName("main") {
+            assets.setSrcDirs(listOf("src/main/assets"))
+        }
+    }
+
     testOptions {
         managedDevices {
             localDevices {

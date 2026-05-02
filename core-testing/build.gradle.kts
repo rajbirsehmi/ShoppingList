@@ -21,7 +21,7 @@ android {
 }
 
 dependencies {
-    implementation(platform(libs.androidx.compose.bom))
+    api(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.test.junit4)
     implementation(libs.androidx.compose.material3)
@@ -29,4 +29,11 @@ dependencies {
     // Core testing libraries needed by robots
     api(libs.androidx.compose.ui.test.junit4)
     api(libs.junit)
+
+    api(libs.slf4j.api)
+    implementation(libs.logback.android)
+
+    // Hilt Testing
+    implementation(libs.hilt.android.testing)
+    implementation(libs.androidx.test.runner)
 }

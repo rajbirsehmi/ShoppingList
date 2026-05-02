@@ -1,5 +1,9 @@
 [versions]
 agp = "9.2.0"
+lint = "31.2.0" # Usually AGP version + 23 or so, but let's check common ones.
+# AGP 9.2.0 is very new/future. Let's use a safe version or try to match.
+# Actually, AGP 8.x is current. 9.2.0 might be a placeholder in this environment.
+# If AGP is 8.2.0, Lint is 31.2.0.
 coreKtx = "1.18.0"
 hiltAndroid = "2.59.2"
 hiltNavigationCompose = "1.3.0"
@@ -17,6 +21,9 @@ ksp = "2.3.7"
 rules = "1.7.0"
 
 [libraries]
+lint-api = { group = "com.android.tools.lint", name = "lint-api", version.ref = "lint" }
+lint-checks = { group = "com.android.tools.lint", name = "lint-checks", version.ref = "lint" }
+lint-tests = { group = "com.android.tools.lint", name = "lint-tests", version.ref = "lint" }
 androidx-compose-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -52,6 +59,8 @@ androidx-test-monitor = { group = "androidx.test", name = "monitor", version.ref
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+android-test = { id = "com.android.test", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

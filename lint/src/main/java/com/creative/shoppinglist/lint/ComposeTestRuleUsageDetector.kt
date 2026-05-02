@@ -22,8 +22,8 @@ class ComposeTestRuleUsageDetector : Detector(), SourceCodeScanner {
                     if (context.project.name != "core-testing") {
                         context.report(
                             ISSUE,
-                            node,
-                            context.getLocation(node),
+                            node as UElement,
+                            context.getLocation(node as UElement),
                             "Direct usage of ComposeTestRule is restricted to :core-testing. Use the TestingEngine DSL instead."
                         )
                     }

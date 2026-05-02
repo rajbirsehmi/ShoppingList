@@ -62,6 +62,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
 
+    // --- Core Testing Utilities & Tags ---
+    implementation(project(":core-testing"))
+    lintChecks(project(":lint"))
+
     // --- Jetpack Compose ---
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

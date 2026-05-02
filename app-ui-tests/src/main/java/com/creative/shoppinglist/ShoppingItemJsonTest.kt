@@ -18,6 +18,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.slf4j.LoggerFactory
+import java.io.FileNotFoundException
 import javax.inject.Inject
 
 @Serializable
@@ -45,9 +46,21 @@ class ShoppingItemJsonTest(private val model: ShoppingItemTestModel) {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun data(): List<ShoppingItemTestModel> {
-            val context = InstrumentationRegistry.getInstrumentation().context
-            val jsonString = context.assets.open("shopping_items.json").bufferedReader().use { it.readText() }
-            return Json.decodeFromString(jsonString)
+            val instrumentation = InstrumentationRegistry.getInstrumentation()
+            // Try both test context and target context
+            val contexts = listOf(instrumentation.context, instrumentation.targetContext)
+
+            for (context in contexts) {
+                try {
+                    val jsonString = context.assets.open("shopping_items.json")
+                        .bufferedReader()
+                        .use { it.readText() }
+                    return Json.decodeFromString(jsonString)
+                } catch (e: Exception) {
+                    // Continue to try the next context
+                }
+            }
+            throw FileNotFoundException("shopping_items.json not found in any context (test or target)")
         }
     }
 

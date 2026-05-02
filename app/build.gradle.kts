@@ -18,7 +18,7 @@ android {
         versionCode = 2
         versionName = "1.2"
 
-        testInstrumentationRunner = "com.creative.shoppinglist.HiltTestRunner"
+        testInstrumentationRunner = "com.creative.shoppinglist.core.testing.HiltTestRunner"
     }
 
     buildTypes {
@@ -38,17 +38,6 @@ android {
         compose = true
     }
 
-    testOptions {
-        managedDevices {
-            localDevices {
-                create("device1") {
-                    device = "Pixel 2"
-                    apiLevel = 33
-                    systemImageSource = "aosp-atd"
-                }
-            }
-        }
-    }
 }
 
 room {
@@ -61,6 +50,15 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
+
+    // --- Core Testing Utilities & Tags ---
+    implementation(project(":core-testing")) {
+        exclude(group = "androidx.test")
+        exclude(group = "androidx.test.ext")
+        exclude(group = "androidx.compose.ui", module = "ui-test-junit4")
+        exclude(group = "junit")
+    }
+    lintChecks(project(":lint"))
 
     // --- Jetpack Compose ---
     implementation(platform(libs.androidx.compose.bom))
@@ -89,6 +87,7 @@ dependencies {
     testImplementation(libs.junit)
 
     // --- UI Testing ---
+    androidTestImplementation(project(":core-testing"))
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.rules)

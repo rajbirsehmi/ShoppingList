@@ -1,0 +1,12 @@
+[
+  { "itemName": "Milk", "isImportant": false },
+  { "itemName": "Eggs", "isImportant": true },
+  { "itemName": "Bread", "isImportant": false },
+  { "itemName": "Apples", "isImportant": true },
+  { "itemName": "Chicken", "isImportant": true },
+  { "itemName": "Rice", "isImportant": false },
+  { "itemName": "Pasta", "isImportant": false },
+  { "itemName": "Coffee", "isImportant": true },
+  { "itemName": "Tea", "isImportant": false },
+  { "itemName": "Bananas", "isImportant": false }
+]
